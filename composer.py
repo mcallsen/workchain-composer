@@ -6,7 +6,7 @@ class WorkChainComposer(object):
 
     def __init__(self):
         self._workchain_template = None
-        self._database = ComponentDatabase(['methods.py', 'conditions.py'])
+        self._database = ComponentDatabase(['methods.py', 'conditions.py', 'outline_methods.py'])
 
     def create_new(self, name, base_class=None):
         """

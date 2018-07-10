@@ -1,4 +1,4 @@
-from component import Component
+from component import Component, IOComponent
 from statement import Statement
 
 
@@ -18,7 +18,7 @@ def read_database(file_name):
         if 'def' in line.split():
             # found the start of a new method
             name = line.split()[1].split('(')[0]
-            arguments = line.split()[1].split('(')[1].rstrip(')')
+            arguments = line.split()[1].split('(')[1].split(')')[0]
             methods[name] = [arguments]
             continue
 
@@ -69,7 +69,7 @@ class ComponentDatabase(object):
         arguments = []
         # Assemble the string, that will be passed as an argument
         # in spec.item(...).
-        for item in ['name', 'allowed_type']:
+        for item in ['name', 'valid_type']:
             if item in inputs:
                 arguments.append('{0}={1}'.format(item, inputs.get(item)))
 
@@ -82,7 +82,7 @@ class ComponentDatabase(object):
 
         statements.append(Statement('spec_item', block_type, init=init))
 
-        return [Component(comp_type, statements)]
+        return [IOComponent(comp_type, statements)]
 
     def _get_component_condition(self, comp_type, init):
         """
@@ -161,7 +161,7 @@ class ComponentDatabase(object):
         components = []
         condition = init.get('argument')
 
-        if condition in self._methods:
+        if condition in self._methods['conditions']:
             init.update({'argument': 'cls.' + condition})
             components += self._get_component_condition('condition', {'name': condition})
 
@@ -175,6 +175,10 @@ class ComponentDatabase(object):
 
         name = init.get('name')
         argument = init.get('argument')
+
+        statements = []
+        if init.get('import'):
+            statements.append(init.get('import'))
 
         return [Component(comp_type, statements=statements, outline_str=name+'({})('.format(argument))]
 

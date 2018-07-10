@@ -28,3 +28,10 @@ class Component(object):
         for statement in self._statements:
             if keyword in statement.keywords:
                 statement.modify(keyword, value)
+
+
+class IOComponent(Component):
+
+    def add_link(self, keyword, value):
+        pass
+

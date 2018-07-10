@@ -60,8 +60,9 @@ class WorkChainTemplate(object):
             return
         self._components[index].remove(self)
 
-    def link_components(self, output_node, output_index, input_node, input_index, value):
+    def link_components(self, output_node, output_index, input_node, input_index, value=None):
         """Link two components by setting the identifier of their input and output to a common value."""
+
         self._components[output_node].add_link('output' + str(output_index), value)
         self._components[input_node].add_link('input' + str(input_index), value)
 
@@ -103,8 +104,8 @@ class WorkChainTemplate(object):
             if component.type not in OUTLINE_COMPONENTS:
                 # Component, that does not belong in the outline.
                 continue
-
-            indent += OUTLINE_COMPONENTS[component.type]
+            if component.type == 'end_block':
+                indent += OUTLINE_COMPONENTS[component.type]
 
             # Add the components outline string to the outline.
             block.add_statement(Statement('comment',
@@ -112,6 +113,8 @@ class WorkChainTemplate(object):
                                           indent=indent,
                                           init={'comment': component.outline_str}
                                           ))
+            if component.type == 'begin_block':
+                indent += OUTLINE_COMPONENTS[component.type]
 
         block.add_statement(Statement('comment', 'define_outline', init={'comment': ')'}))
 

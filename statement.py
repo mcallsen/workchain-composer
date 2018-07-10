@@ -1,4 +1,4 @@
-from string import Template, Formatter
+from string import Template
 
 TEMPLATES = {
     'import_as': '${indent}import ${module_path} as ${alias}',
@@ -8,6 +8,17 @@ TEMPLATES = {
     'decorator': '${indent}@${name}',
     'comment': '${indent}${comment}',
 }
+
+
+def get_keywords(line):
+    """Return all the <braced> keywords within a line."""
+
+    keywords = list()
+    for result in Template.pattern.findall(line):
+        if result[2] != '':
+            keywords.append(result[2])
+
+    return keywords
 
 
 class Statement(object):
@@ -35,7 +46,7 @@ class Statement(object):
 
         # Set all potential keywords for this template. The list that
         # is created here contains all keys this template would accept.
-        self.keywords = [i[1] for i in Formatter().parse(self._template.template) if i[1] is not None]
+        self.keywords = get_keywords(line)
         for keyword in self.keywords:
             self._arguments[keyword] = ""
 
