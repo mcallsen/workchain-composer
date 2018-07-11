@@ -1,4 +1,4 @@
-# workchain-composer
+# Workchain-composer
 
 This is a tool for programmatically writing Aiida WorkChains by composing them from template components stored in a database
 with the main goal of simplyfing the development of new and complex WorkChains. The idea behind it is to represent the 
@@ -20,6 +20,34 @@ WorkChain with those inputs. Beyond these basic components there are two more re
 
 - `Block` This can be any of the `_while`, `_if`, `_for` constructs taking a `Condition` as an input and iterating over all `Methods` inside the block.
 - `Condition` A method that takes its inputs from the context but returns a bool.  
+
+## Component database
+
+While `Input`, `Output`, and `Block` components are generated programmatically, `Method` and `Condition` components or their templates
+need to be stored in a database from where their behaviour can be copied. Currently the database consists of three python files 
+- `methods.py`
+- `conditions.py`
+- `outline_methods.py`
+in which all the methods are stored as templates like e.g.
+```
+def ExampleMethod(self):
+    """
+    Example method showcasing the general shape of outline method components:
+
+    - Take inputs from the ctx.
+    - Obtain outputs based on inputs.
+    - put outputs into the context.
+    """
+    input1 = self.ctx.${input1}
+    output1 = input1
+    self.ctx.${output1} = input1
+```
+Each component can be retrieved from the database by their name, which also implies that method names should be unique
+
+__TODO:__ The database should be more modular allowing for loading different module files and retrieving components based on 
+the path e.g. `example_module.example_omponent`.
+
+__TODO:__ In a very far future the database could become part of the Aiida database, by storing compnent templates as nodes.
 
 ## Example usages
 
