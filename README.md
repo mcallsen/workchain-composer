@@ -2,14 +2,13 @@
 
 This is a tool for programmatically writing Aiida WorkChains by composing them from template components stored in a database
 with the main goal of simplyfing the development of new and complex WorkChains. The idea behind it is to represent the 
-WorkChain as a node graph of components that can then be implemented as a python script. 
+WorkChain as a node graph of components that can then be implemented as a python script. This might ultimately allwo people with 
+only basic python or programming knowledge to develop WorkChains with a CLI or GUI.
 
 ## Components
 
-A component in this node graph can 
-have `inputs`, `outputs` and a method that will operate on the inputs and return the outputs. The inputs and outputs of the 
-components have to be connected to let two components operate on the same object. The three types of components, that
-a WorkChain can consist of, are:
+A component in this node graph can have `inputs`, `outputs` and a method that will operate on the inputs and return the outputs.
+The inputs and outputs of the components have to be connected to let two components operate on the same object. The three types of components, that a WorkChain can consist of, are:
 
 - `Input`: the input of a WorkChain showing up as `spec.input(...)`. This type of node only has outputs. 
 - `Output`: the output of WorkChain showing up as `spec.output(...)`. This type of node only has inputs.
