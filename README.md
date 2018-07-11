@@ -138,7 +138,7 @@ class AddAndMultiplyWorkChain(WorkChain):
     def result(self):
         self.out('result', Int(self.ctx.result))
 ```
-__Todo:__ Advanced users may notice that the above `WorkChain` method is lacking a setup method putting the inputs of the WorkChain into the 
+__TODO:__ Advanced users may notice that the above `WorkChain` method is lacking a setup method putting the inputs of the WorkChain into the 
 context and therefore would not actually work. This is a consequence of turning the methods into templates instead of just copying and 
 pasting. Note that above `add` method would work for all objects with an overloaded '+' operator, if only those two objects are can be
 found in the context. The original add method from the Aiida example would take its inputs directly from 'WorkChain.inputs' instead.
