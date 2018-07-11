@@ -142,3 +142,67 @@ __Todo:__ Advanced users may notice that the above `WorkChain` method is lacking
 context and therefore would not actually work. This is a consequence of turning the methods into templates instead of just copying and 
 pasting. Note that above `add` method would work for all objects with an overloaded '+' operator, if only those two objects are can be
 found in the context. The original add method from the Aiida example would take its inputs directly from 'WorkChain.inputs' instead.
+
+The second example is a WorkChain with a slightly more complicated outline using a `_while_block`. Again we will start by loading the
+the module and creating a new WorkChain this time inheriting from `another.workchain.BaseWorkChain`
+```
+In [1]: from composer import WorkChainComposer
+
+In [2]: wcc = WorkChainComposer()
+
+In [3]: wcc.create_new('ExampleWorkChain', base_class='another.workchain.BaseWorkChain')
+```
+Using the optional `base_class` argument will automatically create the correct `from ... import ...` statement. Next we will add two
+components, one being a normal method and one being an outline block.
+
+```
+In [4]: wcc.add_component('outline_method', {'name': 'some_method'})
+
+In [5]: wcc.add_component('block', {'name': '_while', 'argument': 'condition', 'import': 'aiida.work.workchain._while'})
+```
+The `argument` keyword tells the composer which condition to load from the database and pass as an argument to the `_while(...)`. 
+By adding the `import` keyword the corresponding import statement will be created. Nest we will append another method. This one 
+will be appended after the while block, so it will occur at the very end of the outline.
+```
+In [6]: wcc.add_component('outline_method', {'name': 'another_method'})
+```
+A method (or even another block) can be inserted within a block by providing the index where the method should be inserted into the
+list of components as additional argument. 
+```
+In [7]: wcc.add_component('outline_method', {'name': 'yet_another_method'}, 4)
+```
+In this case the relevant components are `1: some_method`, `2: condition`, `3: start while_block`, `4: end while_block`. So inserting 
+at index 4 will put `yet_another_method` into the `_while` block, which we can check by implementing our WorkChain:
+```
+In [8]: wcc.implement()
+from another.workchain import BaseWorkChain
+from aiida.work.workchain import _while
+
+class ExampleWorkChain(BaseWorkChain):
+
+    @classmethod
+    def define(cls, spec):
+
+        spec.outline(
+            cls.some_method,
+            _while(cls.condition)(
+                cls.yet_another_method,
+            ),
+            cls.another_method,
+        )
+
+    def some_method(self):
+        pass
+    
+    def condition(self):
+        return True
+    
+    def another_method(self):
+        pass
+    
+    def yet_another_method(self):
+        pass
+```
+
+__TODO:__ Currently there is no intuitive way to find out where a method can be inserted. `wcc.show_components` does only list all of the
+components, but since there is no `__repr__` for the `Component` class, that print out is not that helpful.
