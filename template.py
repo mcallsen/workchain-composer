@@ -22,12 +22,7 @@ BLOCK_TEMPLATES = {
     ]
 }
 
-# These are the indent modifiers for the special components in the outline.
-OUTLINE_COMPONENTS = {
-    'begin_block': 1,
-    'outline_method': 0,
-    'end_block': -1,
-}
+OUTLINE_COMPONENTS = ['begin_block', 'outline_method', 'end_block']
 
 
 class WorkChainTemplate(object):
@@ -102,10 +97,10 @@ class WorkChainTemplate(object):
 
         for component in self._components:
             if component.type not in OUTLINE_COMPONENTS:
-                # Component, that does not belong in the outline.
+                # Component, that does not contribute to the outline.
                 continue
-            if component.type == 'end_block':
-                indent += OUTLINE_COMPONENTS[component.type]
+
+            indent += component.indent_modifier[0]
 
             # Add the components outline string to the outline.
             block.add_statement(Statement('comment',
@@ -113,8 +108,8 @@ class WorkChainTemplate(object):
                                           indent=indent,
                                           init={'comment': component.outline_str}
                                           ))
-            if component.type == 'begin_block':
-                indent += OUTLINE_COMPONENTS[component.type]
+
+            indent += component.indent_modifier[1]
 
         block.add_statement(Statement('comment', 'define_outline', init={'comment': ')'}))
 

@@ -158,11 +158,9 @@ components, one being a normal method and one being an outline block.
 ```
 In [4]: wcc.add_component('outline_method', {'name': 'some_method'})
 
-In [5]: wcc.add_component('block', {'name': '_while', 'argument': 'condition', 'import': 'aiida.work.workchain._while'})
+In [5]: wcc.add_component('block', {'name': '_while', 'argument': 'condition'})
 ```
 The `argument` keyword tells the composer which condition to load from the database and pass as an argument to the `_while(...)`. 
-By adding the `import` keyword the corresponding import statement will be created. Nest we will append another method. This one 
-will be appended after the while block, so it will occur at the very end of the outline.
 ```
 In [6]: wcc.add_component('outline_method', {'name': 'another_method'})
 ```

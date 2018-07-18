@@ -25,7 +25,7 @@ class WorkChainComposer(object):
         if not self._workchain_template:
             self._workchain_template = WorkChainTemplate()
 
-        self.add_component('class_definition', {'name': name, 'base_class': base_class})
+        self.add_component('class_definition', {'name': name, 'import': base_class})
 
     def implement(self):
         """Implement the python script representation of the WorkChain."""

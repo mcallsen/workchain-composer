@@ -1,5 +1,15 @@
-from component import Component, IOComponent
+from component import IOComponent, ClassMethodComponent, ClassDefinitionComponent, BeginBlockComponent, EndBlockComponent
 from statement import Statement
+
+WORKCHAIN_IMPORT='aiida.work.workchain.'
+
+COMPONENT_TYPES = {
+    'outline_method': ClassMethodComponent,
+    'condition': ClassMethodComponent,
+    'input': IOComponent,
+    'output': IOComponent,
+    'class_definition': ClassDefinitionComponent,
+}
 
 
 def read_database(file_name):
@@ -44,113 +54,30 @@ class ComponentDatabase(object):
         :param comp_type: Type of the Component. Must be in COMPONENT_TYPES.
         :param init: Name of the Component.
 
-        This method will call the specialised version of _get_component based
-        on the components type.
         """
 
+        # Setup additional imports if required.
         add_import = init.get('import')
+
         if add_import:
+            init['base_class'] = add_import
             init['import'] = create_import_statement(add_import)
 
-        return getattr(self, '_get_component_' + comp_type)(comp_type, init)
+        if comp_type == 'block':
+            init['import'] = create_import_statement(WORKCHAIN_IMPORT + init.get('name'))
+            return self._get_component_block(init)
 
-    def _get_component_input(self, comp_type, init):
-        """Input component spec.input(...)."""
-        return self._get_component_io(comp_type, init)
+        init['_lines'] = self._get_from_database(comp_type + 's', init['name'])
 
-    def _get_component_output(self, comp_type, init):
-        """Output component spec.output(...)."""
-        return self._get_component_io(comp_type, init)
+        return [COMPONENT_TYPES[comp_type](comp_type, init)]
 
-    @staticmethod
-    def _get_component_io(comp_type, inputs):
-        """Generic get for both types of spec_items."""
-
-        arguments = []
-        # Assemble the string, that will be passed as an argument
-        # in spec.item(...).
-        for item in ['name', 'valid_type']:
-            if item in inputs:
-                arguments.append('{0}={1}'.format(item, inputs.get(item)))
-
-        init = {'item_type': comp_type, 'arguments': ', '.join(arguments)}
-        block_type = 'define_' + comp_type + 's'
-
-        statements = []
-        if inputs.get('import'):
-            statements.append(inputs.get('import'))
-
-        statements.append(Statement('spec_item', block_type, init=init))
-
-        return [IOComponent(comp_type, statements)]
-
-    def _get_component_condition(self, comp_type, init):
-        """
-        Get a condition type method from the database.
-        """
-        if init is None:
-            init = {}
-        init['block_type'] = 'class_methods'
-
-        return self._get_component_method(comp_type, init)
-
-    def _get_component_outline_method(self, comp_type, init):
-
-        if init is None:
-            init = {}
-        init['block_type'] = 'class_methods'
-
-        return self._get_component_method(comp_type, init)
-
-    def _get_component_method(self, comp_type, init):
-        """Get a method type component."""
-
-        name = init.get('name')
-        block_type = init.get('block_type', 'methods')
-
-        lines = self._methods[comp_type + 's'].get(name)
-        if lines is None:
+    def _get_from_database(self, comp_type, name):
+        """Get an item from the database."""
+        if comp_type not in self._methods:
             return None
+        return self._methods[comp_type].get(name)
 
-        statements = list()
-
-        if init.get('import'):
-            statements.append(init.get('import'))
-
-        statements.append(Statement('definition', block_type, init={
-            'keyword': 'def',
-            'name': name,
-            'arguments': lines[0],
-        }))
-
-        for line in lines[1:]:
-            statements.append(Statement('line', block_type, line='${indent}' + line.rstrip()))
-
-        return [Component(comp_type, statements=statements, outline_str='cls.' + name + ',')]
-
-    @staticmethod
-    def _get_component_class_definition(comp_type, init):
-        """Get a class definition component."""
-
-        statements = []
-        if init is None:
-            init = dict()
-            init['name'] = 'ExampleWorkChain'
-            init['base_class'] = 'aiida.work.workchain.WorkChain'
-
-        class_name = init['base_class'].split('.')[-1]
-
-        statements.append(Statement('definition', comp_type, init={
-            'keyword': 'class',
-            'name': init['name'],
-            'arguments': class_name,
-        }))
-
-        statements.append(create_import_statement(init['base_class']))
-
-        return [Component(comp_type, statements)]
-
-    def _get_component_block(self, comp_type, init):
+    def _get_component_block(self, init):
         """
         Add a block of components to the outline.
 
@@ -163,29 +90,11 @@ class ComponentDatabase(object):
 
         if condition in self._methods['conditions']:
             init.update({'argument': 'cls.' + condition})
-            components += self._get_component_condition('condition', {'name': condition})
+            components += self.get_component('condition', {'name': condition})
 
-        components += ComponentDatabase._get_component_start_block('begin_block', init)
-        components += ComponentDatabase._get_component_end_block('end_block', init)
+        components += [BeginBlockComponent(init)]
+        components += [EndBlockComponent()]
         return components
-
-    @staticmethod
-    def _get_component_start_block(comp_type, init):
-        """Get a start_block component."""
-
-        name = init.get('name')
-        argument = init.get('argument')
-
-        statements = []
-        if init.get('import'):
-            statements.append(init.get('import'))
-
-        return [Component(comp_type, statements=statements, outline_str=name+'({})('.format(argument))]
-
-    @staticmethod
-    def _get_component_end_block(comp_type, init):
-        """Get an end_block component."""
-        return [Component(comp_type, outline_str='),')]
 
 
 def create_import_statement(import_str):
