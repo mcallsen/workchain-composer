@@ -22,7 +22,11 @@ class Block(object):
 
     def add_statement(self, statement):
         """Add a statement of type statement_type to this block."""
-        self._statements.append(statement)
+        statement.add_to(self._statements)
+
+    def remove(self, statement):
+        """Remove a statement from this block."""
+        statement.remove_from(self._statements)
 
     def write(self):
         """Write all the statement groups in this block."""

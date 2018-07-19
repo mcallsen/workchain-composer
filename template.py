@@ -53,7 +53,9 @@ class WorkChainTemplate(object):
         """Remove a component at index."""
         if index > len(self._components):
             return
-        self._components[index].remove(self)
+        component = self._components[index]
+        component.remove(self)
+        self._components.remove(component)
 
     def link_components(self, output_node, output_index, input_node, input_index, value=None):
         """Link two components by setting the identifier of their input and output to a common value."""

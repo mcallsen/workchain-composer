@@ -1,7 +1,7 @@
 from component import IOComponent, ClassMethodComponent, ClassDefinitionComponent, BeginBlockComponent, EndBlockComponent
-from statement import Statement
+from statement import Statement, FromImportStatement
 
-WORKCHAIN_IMPORT='aiida.work.workchain.'
+WORKCHAIN_IMPORT = 'aiida.work.workchain.'
 
 COMPONENT_TYPES = {
     'outline_method': ClassMethodComponent,
@@ -101,7 +101,7 @@ def create_import_statement(import_str):
     """Create an import statement."""
     class_path = '.'.join(import_str.split('.')[:-1])
     class_name = import_str.split('.')[-1]
-    return Statement('from_import', 'from_import', init={
+    return FromImportStatement('from_import', 'from_import', init={
             'path': class_path,
             'items': class_name
         })

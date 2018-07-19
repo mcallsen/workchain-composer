@@ -112,10 +112,11 @@ class ClassMethodComponent(OutlineComponent):
         for line in lines[1:]:
             statements.append(Statement('line', block_type, line='${indent}' + line.rstrip()))
 
-        super(ClassMethodComponent, self).__init__(comp_type,
-                                                   statements=statements,
-                                                   outline_str='cls.' + name + ','
-                                                   )
+        super(ClassMethodComponent, self).__init__(
+            comp_type,
+            statements=statements,
+            outline_str='cls.' + name + ','
+        )
 
 
 class BeginBlockComponent(OutlineComponent):
@@ -131,10 +132,11 @@ class BeginBlockComponent(OutlineComponent):
         if init.get('import'):
             statements.append(init.get('import'))
 
-        super(BeginBlockComponent, self).__init__('begin_block',
-                                                  statements=statements,
-                                                  outline_str=name+'({})('.format(argument)
-                                                  )
+        super(BeginBlockComponent, self).__init__(
+            'begin_block',
+            statements=statements,
+            outline_str=name+'({})('.format(argument)
+        )
 
 
 class EndBlockComponent(OutlineComponent):
@@ -143,6 +145,7 @@ class EndBlockComponent(OutlineComponent):
 
         self.indent_modifier = [-1, 0]
 
-        super(EndBlockComponent, self).__init__('end_block',
-                                                outline_str='),'
-                                                )
+        super(EndBlockComponent, self).__init__(
+            'end_block',
+            outline_str='),'
+        )
