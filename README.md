@@ -2,8 +2,7 @@
 
 This is a tool for programmatically writing Aiida WorkChains by composing them from template components stored in a database
 with the main goal of simplyfing the development of new and complex WorkChains. The idea behind it is to represent the 
-WorkChain as a node graph of components that can then be implemented as a python script. This might ultimately allwo people with 
-only basic python or programming knowledge to develop WorkChains with a CLI or GUI.
+WorkChain as a node graph of components that can then be implemented as a python script. This might ultimately allow people with only basic python or programming knowledge to develop WorkChains with a CLI or GUI.
 
 ## Components
 
@@ -41,7 +40,7 @@ def ExampleMethod(self):
     output1 = input1
     self.ctx.${output1} = input1
 ```
-Each component can be retrieved from the database by their name, which also implies that method names should be unique
+Each component can be retrieved from the database by their name, which also implies that method names should be unique. Note that the method templates make use of local variables `input1`, `output1` and variables that are stored in the context like `${input1}`. The latter represent the inputs and outputs of a component node and their name will be replaced, when linking two nodes.
 
 __TODO:__ The database should be more modular allowing for loading different module files and retrieving components based on 
 the path e.g. `example_module.example_omponent`.
@@ -73,25 +72,25 @@ In [2]: wcc = WorkChainComposer()
 The constructor for the WorkChainComposer will load the component database and nothing more at the moment. In order to create a new
 WorkChain we have to call
 ```
-In [3]: wcc.create_new('AddAndMultiplyWorkChain')
+In [3]: wcc.create_new(name='AddAndMultiplyWorkChain')
 ```
 Creating a new workChain requires a name for the new WorkChain sub class. By default it will inherit for `aiida.work.workchain.WorkChain`. 
 How to inherit from another base class will be shown in the second example below. After this we can start adding a number of components. In this case the inputs and outputs for the WorkChain as well as the the two methods comprising the outline
 
 ```
-In [4]: wcc.add_component('input', {'name': 'a', 'valid_type': 'Int'})
+In [4]: wcc.add_component(comp_type='input', init={'name': 'a', 'valid_type': 'Int'})
 
-In [5]: wcc.add_component('input', {'name': 'b', 'valid_type': 'Int'})
+In [5]: wcc.add_component(comp_type='input', init={'name': 'b', 'valid_type': 'Int'})
 
-In [6]: wcc.add_component('input', {'name': 'c', 'valid_type': 'Int'})
+In [6]: wcc.add_component(comp_type='input', init={'name': 'c', 'valid_type': 'Int'})
 
-In [7]: wcc.add_component('output', {'name': 'result', 'valid_type': 'Int'})
+In [7]: wcc.add_component(comp_type='output', init={'name': 'result', 'valid_type': 'Int'})
 
-In [8]: wcc.add_component('outline_method', {'name': 'add'})
+In [8]: wcc.add_component(comp_type='outline_method', init={'name': 'add'})
 
-In [9]: wcc.add_component('outline_method', {'name': 'multiply'})
+In [9]: wcc.add_component(comp_type='outline_method', init={'name': 'multiply'})
 
-In [10]: wcc.add_component('outline_method', {'name': 'result'})
+In [10]: wcc.add_component(comp_type='outline_method', init={'name': 'result'})
 ```
 Now that we have all the components, their inputs and outputs need to be connected. This can be done by using the
 `link_components` method, that takes the index of the component with the outputs, the index of the specific output, the index of 
@@ -150,24 +149,24 @@ In [1]: from composer import WorkChainComposer
 
 In [2]: wcc = WorkChainComposer()
 
-In [3]: wcc.create_new('ExampleWorkChain', base_class='another.workchain.BaseWorkChain')
+In [3]: wcc.create_new(name='ExampleWorkChain', base_class='another.workchain.BaseWorkChain')
 ```
 Using the optional `base_class` argument will automatically create the correct `from ... import ...` statement. Next we will add two
 components, one being a normal method and one being an outline block.
 
 ```
-In [4]: wcc.add_component('outline_method', {'name': 'some_method'})
+In [4]: wcc.add_component(comp_type='outline_method', init={'name': 'some_method'})
 
-In [5]: wcc.add_component('block', {'name': '_while', 'argument': 'condition'})
+In [5]: wcc.add_component(comp_type='block', init={'name': '_while', 'argument': 'condition'})
 ```
 The `argument` keyword tells the composer which condition to load from the database and pass as an argument to the `_while(...)`. 
 ```
-In [6]: wcc.add_component('outline_method', {'name': 'another_method'})
+In [6]: wcc.add_component(comp_type='outline_method', init={'name': 'another_method'})
 ```
 A method (or even another block) can be inserted within a block by providing the index where the method should be inserted into the
 list of components as additional argument. 
 ```
-In [7]: wcc.add_component('outline_method', {'name': 'yet_another_method'}, 4)
+In [7]: wcc.add_component(comp_type='outline_method', init={'name': 'yet_another_method'}, 4)
 ```
 In this case the relevant components are `1: some_method`, `2: condition`, `3: start while_block`, `4: end while_block`. So inserting 
 at index 4 will put `yet_another_method` into the `_while` block, which we can check by implementing our WorkChain:
