@@ -74,7 +74,7 @@ WorkChain we have to call
 ```
 In [3]: wcc.create_new(name='AddAndMultiplyWorkChain')
 ```
-Creating a new workChain requires a name for the new WorkChain sub class. By default it will inherit for `aiida.work.workchain.WorkChain`. 
+Creating a new workChain requires a name for the new WorkChain sub class. By default it will inherit from `aiida.work.workchain.WorkChain`. 
 How to inherit from another base class will be shown in the second example below. After this we can start adding a number of components. In this case the inputs and outputs for the WorkChain as well as the the two methods comprising the outline
 
 ```
@@ -139,7 +139,7 @@ class AddAndMultiplyWorkChain(WorkChain):
 ```
 __TODO:__ Advanced users may notice that the above `WorkChain` method is lacking a setup method putting the inputs of the WorkChain into the 
 context and therefore would not actually work. This is a consequence of turning the methods into templates instead of just copying and 
-pasting. Note that above `add` method would work for all objects with an overloaded '+' operator, if only those two objects are can be
+pasting. Note that above `add` method would work for all objects with an overloaded '+' operator, only if those two objects can be
 found in the context. The original add method from the Aiida example would take its inputs directly from 'WorkChain.inputs' instead.
 
 The second example is a WorkChain with a slightly more complicated outline using a `_while_block`. Again we will start by loading the
